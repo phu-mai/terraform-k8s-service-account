@@ -11,15 +11,24 @@ can be used to declaratively create and update `ServiceAccounts` and the bound p
 
 ## How do you use this module?
 
-* See the [root README](https://github.com/gruntwork-io/terraform-kubernetes-helm/blob/master/README.md) for
-  instructions on using Terraform modules.
-* This module uses [the `kubernetes` provider](https://www.terraform.io/docs/providers/kubernetes/index.html).
-* See the [examples](https://github.com/gruntwork-io/terraform-kubernetes-helm/tree/master/examples) folder for example
-  usage.
-* See [variables.tf](https://github.com/gruntwork-io/terraform-kubernetes-helm/blob/master/modules/k8s-service-account/variables.tf)
-  for all the variables you can set on this module.
-* See [outputs.tf](https://github.com/gruntwork-io/terraform-kubernetes-helm/blob/master/modules/k8s-service-account/outputs.tf)
-  for all the variables that are outputed by this module.
+```hcl
+
+module "service_account" {
+  source = "./terraform-k8s-service-account"
+  name                   = "account_name"
+  namespace              = "kube-system"
+  num_rbac_cluster_roles = 1
+
+  rbac_cluster_roles = [
+    {
+      name      = "cluster-admin"
+      namespace = "kube-system"
+    },
+  ]
+}
+
+
+```
 
 
 ## What is a ServiceAccount?
@@ -35,11 +44,3 @@ Kubernetes API from within the Pod. This has several advantages:
 - You can differentiate a service accessing the API and performing actions from users accessing the API.
 
 Use `ServiceAccounts` whenever you need to grant access to the Kubernetes API to Pods deployed on the cluster.
-
-
-## Why is this a Terraform Module and not a Helm Chart?
-
-This module uses Terraform to manage the `ServiceAccount` resource instead of using Helm to support the use case of
-setting up Helm. When setting up the Helm server, you will want to setup a `Namespace` and `ServiceAccount` for the Helm
-server to be deployed with. This leads to a chicken and egg problem, where the `Namespace` and `ServiceAccount` needs to
-be created before Helm is available for use. As such, we rely on Terraform to set these core resources up.
